@@ -20,7 +20,7 @@ class DBEngine:
 	def execute(self, cmd_str):
 		if hasattr(self,'cur'):
 			try:
-				self.cur.execute(cmd_str);
+				return self.cur.execute(cmd_str);
 			except Exception, e:
 				raise DBError(e);
 
@@ -35,7 +35,8 @@ class DBEngine:
 if __name__ == '__main__':
 	engine = DBEngine();
 	engine.connect();
-	engine.execute('select * from users');
+	n = engine.execute('select * from users');
+	print '受影响的行数:%d'%n;
 	for u in engine.fetch():
 		print u;
 	engine.close();
