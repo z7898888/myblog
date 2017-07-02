@@ -1,0 +1,51 @@
+{% extends 'user.html' %}
+
+{% block title %}编辑日志{% endblock %}
+{% block beforehead %}
+{% endblock %}
+
+{% block blog_content %}
+	<div class='uk-grid uk-margin-small-top' data-uk-grid-margin>
+		<div class='uk-width-1-1'>
+			<form method='post' action='/api/blog/save{% if blog %}/{{blog.id}}{% endif %}' class='uk-form uk-form-stacked'>
+				<div class='uk-form-row'>
+					<input name='title' class="uk-width-1-1" placeholder='标题' {%if blog %}value='{{blog.title}}'{% endif %} />
+				</div>
+				<div class="uk-form-row">
+					<div class="uk-form-controls">
+						<textarea name='summary' rows="4" class="uk-width-1-1" placeholder='简介'>{% if blog %}
+{{blog.summary}}
+{% endif %}</textarea>
+					</div>
+				</div>
+				<div class='uk-form-row'>
+					<textarea id='editor' name='content' class='uk-width-1-1'>{% if blog %}
+{{blog.content}}
+{% endif %}</textarea>
+				</div>
+				<div class="uk-form-row">
+					<button class="uk-button uk-button-primary">保存</button>
+				</div>
+			</form>
+			<script src="/static/editor/kindeditor.js"></script>
+			<script src="/static/editor/lang/zh_CN.js"></script>
+			<script>
+				KindEditor.ready(function(K){
+					var options = {
+						resizeType : 1,
+						height:300,
+						items : [
+							'fontname', 'fontsize', '|', 'forecolor',
+							'hilitecolor', 'bold', 'italic','underline',
+							'removeformat','|','justifyleft','justifycenter'
+							,'justifyright','insertorderedlist',
+							'insertunorderedlist','|','emoticons','image',
+							'link','plainpaste','wordpaste','table','hr',
+							'code']
+					};
+					window.editor = K.create('#editor',options);
+				});
+			</script>
+		</div>
+	</div>
+{% endblock %}

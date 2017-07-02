@@ -1,0 +1,16 @@
+{% extends 'user.html' %}
+
+{% block title %}博客{% endblock %}
+
+{% block beforehead %}
+{% endblock %}
+
+{% block blog_content %}
+<div class='uk-article' id='blogShow'>
+	<h1 class='uk-article-title'>{{blog.title}}</h1>
+	<p class='uk-article-meta'>发表于 {{blog.created_at}}</p>
+	<div id='blogContent'>
+		{{blog.content | safe}}
+	</div>
+</div>
+{% endblock %}
