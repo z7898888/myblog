@@ -2,7 +2,7 @@ drop database if exists myblog;
 drop user if exists admin;
 
 create user admin@'%' identified by '123abc';
-grant select on myblog.* to admin;
+grant select,insert,update,delete on myblog.* to admin;
 create database myblog;
 
 use myblog; # 使用数据库
