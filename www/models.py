@@ -54,6 +54,12 @@ def __ResetDataTable():
 		blog.title = '生命与和平相爱';
 		blog.insert();
 
+		user = User( id = uuid.uuid1(), name='sammy', created_at = time.time(), passwd='666666', role='Admin');
+		blog.user_id = user.id;
+		blog.id = uuid.uuid1();
+		user.insert();
+		blog.insert();
+
 	dropAllTables();
 	createAllTables();
 	insertTestData();

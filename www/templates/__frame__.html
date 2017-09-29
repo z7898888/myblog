@@ -6,6 +6,12 @@
 		<a href='/' class='uk-navbar-brand'>Dean的小站</a>
 		<ul class='uk-navbar-nav'>
 			<li><a href='/home'><i class='uk-icon-home'></i>主页</a></li>
+			{% if author %}
+			<li><a href='/list/{{author.id}}'><i class='uk-icon-home'></i>列表</a>
+			{% if user and user.id == author.id %}
+			<li><a href='/manage/blog/create'><i class='uk-icon-home'></i>编辑</a>
+			{% endif %}
+			{% endif %}
 		</ul>
 		<div class='uk-navbar-flip'>
 			<ul class='uk-navbar-nav'>

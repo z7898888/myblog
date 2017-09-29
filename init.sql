@@ -1,7 +1,7 @@
 drop database if exists myblog;
 drop user if exists admin;
 
-create user admin@'%' identified by '123';
+create user admin@'%' identified by '123abc';
 grant select on myblog.* to admin;
 create database myblog;
 

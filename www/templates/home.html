@@ -3,13 +3,18 @@
 {% block title %}主页{% endblock %}
 
 {% block main_content %}
-		<div class="uk-width-medium-3-4">
-		</div>
+	<div class="uk-width-medium-3-4">
+		{% for item in blogs %}
+			<li><a href="/blog/{{item[0].id}}">
+				{{item[0].title}} -- {{item[1].name}}
+			</a></li>
+		{% endfor %}
+	</div>
 
-		<div class="uk-width-medium-1-4">
-			<div class="uk-panel uk-panel-box">
-				<h3 class="uk-panel-title">关于我</h3>
-				像一个平和的智者的预言“后来一切都好"
-			</div>
+	<div class="uk-width-medium-1-4">
+		<div class="uk-panel uk-panel-box">
+			<h3 class="uk-panel-title">关于我</h3>
+			像一个平和的智者的预言“后来一切都好"
 		</div>
+	</div>
 {% endblock %}

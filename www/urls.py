@@ -5,30 +5,51 @@ from ToyToolkit.myweb import route,intercept,view,ctx,StaticRoute,SeeOther,NotFo
 from models import User,Blog;
 import datetime, time, hashlib;
 
-from page import datetime_filter;
+from group import datetime_filter;
 
 from config.config import configs;
 
 _COOKIE_KEY = configs['session']['secret'];
 
+from group import get_author_info;
+
 @view('index.html')
 @route('/','get')
 def index():
-	blogs = Blog.get_all();
+	return dict();
+
+@view('user.html')
+@route('/user/{username}', 'get')
+def user( name ):
+	authors = User.select('where name=%s',name);
+	if len(authors) != 1:
+		NotFound();
+	author = get_author_info( authors[0].id );
 	user = ctx.request.user;
-	return dict( blogs = blogs, user=user);
+	api = '/api/blogs/'+author.id;
+	return dict( api=api, author=author, user=user);
 
 @view('blog_list.html')
-@route('/manage/blog','get')
-def blog_list():
+@route('/list/{id}','get')
+def blog_list( id ):
 	user = ctx.request.user;
-	index = ctx.request.get('page_index');
-	return dict(author=user, user = user, index=index);
+	author = get_author_info( id );
+	api = '/api/blogs-date/'+author.id;
+	return dict( api=api, author=author, user = user);
+
+@view('blog_list.html')
+@route('/list/{id}/{date}','get')
+def blog_list_date( id, date ):
+	user = ctx.request.user;
+	author = get_author_info( id );
+	api = '/api/blogs-date/'+id+'/'+date;
+	return dict( api=api, author=author, user = user);
 
 @view('blog_edit.html')
 @route('/manage/blog/create','get')
 def blog_create():
 	user = ctx.request.user;
+	author = get_author_info( user.id );
 	return dict(author=user,user=user);
 
 @view('blog_edit.html')
@@ -42,23 +63,10 @@ def blog_edit( id ):
 @route('/blog/{id}', 'get')
 def blog( id ):
 	blog = Blog.get_one(id=id);
-	author = User.get_one(id=blog.user_id);
+	author = get_author_info( blog.user_id );#User.get_one(id=blog.user_id);
 	user = ctx.request.user;
 	blog.created_at = datetime_filter( blog.created_at );
 	return dict(blog = blog, author=author, user=user);
-
-@view('user.html')
-@route('/user/{username}', 'get')
-def user( name ):
-	authors = User.select('where name=%s',name);
-	if len(authors) != 1:
-		NotFound();
-	author = authors[0];
-	blogs = Blog.select('where user_id=%s', author.id);
-	user = ctx.request.user;
-	index = ctx.request.get('page_index');
-	print index;
-	return dict( blogs=blogs, author=author, user=user, index=index);
 
 @view('home.html')
 @route('/home','get')

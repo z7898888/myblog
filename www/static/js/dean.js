@@ -4,7 +4,7 @@ function login( data ){
 		return false;
 	}
 
-	location.href = '/manage/blog';
+	location.href = data.url;
 }
 
 function check( form ){
@@ -43,43 +43,37 @@ function delBlog( id ){
 	);
 }
 
+var vm = null;
+
 function initBlogsVM(data){
 	$('#div-blogs').show();
-	var vm = new Vue({
-		el:'#div-blogs',
-		data:{
-			blogs: data.blogs,
-			page: data.page
-		},
-		methods:{
-			previous:function(){
-				return this.page.page_index - 1;
+	if(vm === null){
+		vm = new Vue({
+			el:'#div-blogs',
+			data:{
+				blogs: data.blogs,
+				page: data.page
 			},
-			next:function(){
-				return this.page.page_index + 1;
-			},
-			del:delBlog
-		}
-	});
+			methods:{
+				previous:function(){
+					return this.page.page_index - 1;
+				},
+				next:function(){
+					return this.page.page_index + 1;
+				},
+				del:delBlog
+			}
+		});
+	} else {
+		vm.blogs = data.blogs;
+		vm.page = data.page;
+	}
 }
 
 function getBlogsByPage( webapi, index, size ){
+	console.log('webapi:'+webapi);
 	var data={page_index:index, page_size:size};
 	getWebAPI( webapi, data, initBlogsVM);
-	/*
-	$.get( webapi ,{
-		page_index: index,
-		page_size:size
-		}).done(
-		function(data){
-			if(data.error){
-				alert(data.message);
-			}else{
-				initBlogsVM(data);
-			}
-		}
-	);
-	*/
 }
 
 function endAJAX( state , func){

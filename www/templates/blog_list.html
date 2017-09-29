@@ -3,14 +3,11 @@
 {% block title %}用户{% endblock %}
 
 {% block beforehead %}
-<script src="/static/js/vue.js"></script>
 <script>
+var api_blogs = "{{api}}";
+var num = 2;
 $(function () {
-	{% if index %}
-	getBlogsByPage('/api/blogs-date',{{index}},10);
-	{% else %}
-	getBlogsByPage('/api/blogs-date',1,10);
-	{% endif %}
+	getBlogsByPage( api_blogs ,1 ,num);
 });
 </script>
 {% endblock %}
@@ -43,10 +40,10 @@ $(function () {
 	<div class='uk-width-1-1 uk-text-center'>
 		<ul class='uk-pagination'>
 			<li v-if="!page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>
-			<li v-if="page.has_previous"><a v-bind:href="'/manage/blog?page_index='+previous()+'&page_size=10'"><i class='uk-icon-angle-double-left'></i></a></li>
+			<li v-if="page.has_previous"><a href="javascript:getBlogsByPage( api_blogs, vm.previous(), num);"><i class='uk-icon-angle-double-left'></i></a></li>
 			<li class="uk-active"><span v-text="page.page_index"></span></li>
 			<li v-if="!page.has_next" class="uk-disabled"><span><i class='uk-icon-angle-double-right'></i></span></li>
-			<li v-if="page.has_next"><a v-bind:href="'/manage/blog?page_index='+next()+'&page_size=10'"><i class='uk-icon-angle-double-right'></i></a></li>
+			<li v-if="page.has_next"><a href="javascript:getBlogsByPage( api_blogs , vm.next() , num);"><i class='uk-icon-angle-double-right'></i></a></li>
 		</ul>
 	</div>
 </div>

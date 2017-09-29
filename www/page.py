@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 #coding:utf-8
 
-from ToyToolkit.myweb import ctx;
-from models import Blog;
-import datetime,time;
-
 class Page( object ):
 	def __init__(self, item_count, page_index=1, page_size=10):
 		if not isinstance(page_index, (long,int)): page_index = 1;
@@ -33,28 +29,3 @@ class Page( object ):
 			'item_count': self.item_count
 		};
 
-def datetime_filter( t ):
-	delta = int(time.time() - t)
-	if delta < 60:
-		return u'刚刚';
-	if delta < 3600:
-		return u'%s分钟前'%(delta // 60);
-	if delta < 86400:
-		return u'%s小时前'%(delta //3600);
-	if delta < 604800:
-		return u'%s天前'%(delta // 86400);
-	dt = datetime.datetime.fromtimestamp( t );
-	return dt.strftime('%Y-%m-%d %H:%M');
-
-def _get_page_args( field ):
-	ret = ctx.request.get( field );
-	if isinstance(ret, unicode):
-		return int(ret);
-
-def get_blogs_by_page():
-	total = Blog.count_all();
-	index = _get_page_args('page_index');
-	size = _get_page_args('page_size');
-	page = Page(total, index, size);
-	blogs = Blog.select('order by created_at desc limit %s,%s',page.offset,page.limit);
-	return blogs, page;

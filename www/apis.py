@@ -10,22 +10,26 @@ from config.config import configs;
 
 _COOKIE_KEY = configs['session']['secret'];
 
-from page import get_blogs_by_page, datetime_filter;
+from group import get_blogs_and_page, datetime_filter;
 
 @api
-@route('/api/blogs', 'get')
-def api_get_blogs():
-	blogs, page = get_blogs_by_page();
-	for blog in blogs:
-		blog.created_at = datetime_filter( blog.created_at );
+@route('/api/blogs/{id}', 'get')
+def api_get_blogs( id ):
+	blogs, page = get_blogs_and_page( id , key=datetime_filter);
 	return dict(blogs=blogs,page= page.obj2dict());
 
 @api
-@route('/api/blogs-date','get')
-def api_get_blogs_by_date():
-	blogs, page = get_blogs_by_page();
-	for blog in blogs:
-		blog.created_at = datetime.datetime.fromtimestamp( blog.created_at).strftime('%Y-%m-%d %H:%M');
+@route('/api/blogs-date/{id}','get')
+def api_get_blogs_by_date( id ):
+	key = lambda x:datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d %H:%M');
+	blogs, page = get_blogs_and_page(id , key=key);
+	return dict(blogs=blogs, page=page.obj2dict());
+
+@api
+@route('/api/blogs-date/{id}/{date}','get')
+def api_get_blogsd_by_date( id, date ):
+	key = lambda x:datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d %H:%M');
+	blogs, page = get_blogs_and_page(id, date, key=key);
 	return dict(blogs=blogs, page=page.obj2dict());
 
 @intercept('/manage/*')
@@ -91,17 +95,6 @@ def api_get_blog( id ):
 	blog = Blog.get_one(id = id);
 	return blog;
 
-from group import count_group_by_date;
-
-@api
-@route('/api/author/{id}', 'get')
-def api_get_author( id ):
-	author = User.get_one(id = id);
-	blogs = Blog.select('where user_id=%s order by created_at desc', id);
-	date_group = count_group_by_date( blogs );
-	print date_group;
-	return dict(id=author.id, name = author.name, groups = date_group);
-
 @api
 @route('/api/signout','get')
 def signout():
@@ -127,7 +120,9 @@ def signin():
 	cookie = make_signed_cookie(name, password, max_age).encode('utf-8');
 	ctx.response.set_cookie('username', cookie, max_age=max_age);
 	
-	return dict(role=user.role);
+	url = '/list/'+user.id;
+	
+	return dict(role=user.role, url=url);
 
 def make_signed_cookie(name, password, max_age):
 	expires = str(int(time.time() + max_age));
