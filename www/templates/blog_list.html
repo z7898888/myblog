@@ -18,8 +18,8 @@ $(function () {
 		<thead>
 			<tr>
 				<th class='uk-width-5-10'>标题</th>
-				<th class='uk-width-3-10'>创建时间</th>
-				<th class='uk-width-2-10'>操作</th>
+				<th class='uk-width-3-10'>目录</th>
+				<th class='uk-width-2-10'>创建时间</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -28,11 +28,12 @@ $(function () {
 					<a target='_blank' v-bind:href="'/blog/'+blog.id"  v-text="blog.title"></a>
 				</td>
 				<td>
-					<span v-text='blog.created_at'></span>
+					<label v-for="cata in blog.cata_path">
+	<a v-bind:href="'/cata/'+cata[0]">{%raw%}{{cata[1]}}{%endraw%}</a>/
+					</label>
 				</td>
 				<td>
-					<a v-bind:href="'/manage/blog/edit/'+blog.id"><i class='uk-icon-edit'></i></a>
-					<a v-on:click='del(blog.id)'><i class='uk-icon-trash'></i></a>
+					<span v-text='blog.created_at'></span>
 				</td>
 			</tr>
 		</tbody>

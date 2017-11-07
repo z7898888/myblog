@@ -2,10 +2,10 @@
 #coding:utf-8
 
 from ToyToolkit.myweb import route,intercept,view,ctx,StaticRoute,SeeOther,NotFound;
-from models import User,Blog;
+from models import User,Blog,Catelog;
 import datetime, time, hashlib;
 
-from group import datetime_filter;
+from group import date_filter,df1,df2,get_blogs_cata;
 
 from config.config import configs;
 
@@ -45,12 +45,21 @@ def blog_list_date( id, date ):
 	api = '/api/blogs-date/'+id+'/'+date;
 	return dict( api=api, author=author, user = user);
 
+@view('blog_list.html')
+@route('/cata/{cataid}','get')
+def blog_list_cata( cataid ):
+	user = ctx.request.user;
+	id = Catelog.get_one(id=cataid).user_id;
+	author = get_author_info( id );
+	api = '/api/blogs-cata/'+cataid;
+	return dict( api=api, author=author, user = user);
+
 @view('blog_edit.html')
 @route('/manage/blog/create','get')
 def blog_create():
 	user = ctx.request.user;
 	author = get_author_info( user.id );
-	return dict(author=user,user=user);
+	return dict(author=author ,user=user);
 
 @view('blog_edit.html')
 @route('/manage/blog/edit/{id}', 'get')
@@ -65,7 +74,7 @@ def blog( id ):
 	blog = Blog.get_one(id=id);
 	author = get_author_info( blog.user_id );#User.get_one(id=blog.user_id);
 	user = ctx.request.user;
-	blog.created_at = datetime_filter( blog.created_at );
+	blog.created_at = df1( blog.created_at );
 	return dict(blog = blog, author=author, user=user);
 
 @view('home.html')
@@ -73,6 +82,9 @@ def blog( id ):
 def home():
 	blogs = Blog.get_all();
 	users = User.get_all();
+	blogs = date_filter( blogs, key=df2);
+	blogs = get_blogs_cata( blogs );
+
 	blog_detial = ( (blog,user) for blog in blogs for user in users if blog.user_id == user.id);
 
 	user = ctx.request.user;

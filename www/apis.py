@@ -10,26 +10,31 @@ from config.config import configs;
 
 _COOKIE_KEY = configs['session']['secret'];
 
-from group import get_blogs_and_page, datetime_filter;
+from group import get_blogs_and_page, df1, df2;
 
 @api
 @route('/api/blogs/{id}', 'get')
 def api_get_blogs( id ):
-	blogs, page = get_blogs_and_page( id , key=datetime_filter);
-	return dict(blogs=blogs,page= page.obj2dict());
+	blogs, page = get_blogs_and_page( id , key=df1);
+	return dict(blogs = blogs, page = page.obj2dict());
 
 @api
 @route('/api/blogs-date/{id}','get')
 def api_get_blogs_by_date( id ):
 	key = lambda x:datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d %H:%M');
-	blogs, page = get_blogs_and_page(id , key=key);
+	blogs, page = get_blogs_and_page(id , key=df2);
 	return dict(blogs=blogs, page=page.obj2dict());
 
 @api
 @route('/api/blogs-date/{id}/{date}','get')
 def api_get_blogsd_by_date( id, date ):
-	key = lambda x:datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d %H:%M');
-	blogs, page = get_blogs_and_page(id, date, key=key);
+	blogs, page = get_blogs_and_page(id, date, key=df2);
+	return dict(blogs=blogs, page=page.obj2dict());
+
+@api
+@route('/api/blogs-cata/{cataid}','get')
+def api_get_blogs_by_cataid( cataid ):
+	blogs, page = get_blogs_and_page(cata=cataid, key=df2);
 	return dict(blogs=blogs, page=page.obj2dict());
 
 @intercept('/manage/*')

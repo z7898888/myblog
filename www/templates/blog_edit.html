@@ -5,6 +5,15 @@
 {% endblock %}
 
 {% block blog_content %}
+<ul class="uk-subnav uk-subnav-pill" data-uk-switcher="{connect:'#switch-1'}">
+	<li><a href="#">目录管理</a></li>
+	<li><a href="#">文章管理</a></li>
+	<li><a href="#">新日志</a></li>
+</ul>
+<ul id="switch-1" class="uk-switcher">
+	<li>目录管理页面还没有想好</li>
+	<li>文章管理页面有点头绪</li>
+	<li>
 	<div class='uk-grid uk-margin-small-top' data-uk-grid-margin>
 		<div class='uk-width-1-1'>
 			<form method='post' action='/api/blog/save{% if blog %}/{{blog.id}}{% endif %}' class='uk-form uk-form-stacked'>
@@ -13,15 +22,11 @@
 				</div>
 				<div class="uk-form-row">
 					<div class="uk-form-controls">
-						<textarea name='summary' rows="4" class="uk-width-1-1" placeholder='简介'>{% if blog %}
-{{blog.summary}}
-{% endif %}</textarea>
+						<textarea name='summary' rows="4" class="uk-width-1-1" placeholder='简介'>{% if blog %}{{blog.summary}}{% endif %}</textarea>
 					</div>
 				</div>
 				<div class='uk-form-row'>
-					<textarea id='editor' name='content' class='uk-width-1-1'>{% if blog %}
-{{blog.content}}
-{% endif %}</textarea>
+					<textarea id='editor' name='content' class='uk-width-1-1'>{% if blog %}{{blog.content}}{% endif %}</textarea>
 				</div>
 				<div class="uk-form-row">
 					<button class="uk-button uk-button-primary">保存</button>
@@ -29,6 +34,7 @@
 			</form>
 			<script src="/static/editor/kindeditor.js"></script>
 			<script src="/static/editor/lang/zh_CN.js"></script>
+			<script src='//unpkg.com/wangeditor/release/wangEditor.min.js'></script>
 			<script>
 				KindEditor.ready(function(K){
 					var options = {
@@ -43,9 +49,16 @@
 							'link','plainpaste','wordpaste','table','hr',
 							'code']
 					};
-					window.editor = K.create('#editor',options);
+					<!-- window.editor = K.create('#editor',options); -->
+					console.log('adfsd');
+					var E = window.wangEditor;
+					var editor = new E('#editor');
+					editor.create();
+					console.log('over');
 				});
 			</script>
 		</div>
 	</div>
+	</li>
+</ul>
 {% endblock %}

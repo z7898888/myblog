@@ -81,9 +81,9 @@ function endAJAX( state , func){
 		function (data){
 			if(data.error){
 				if(data.error ==='internalerror')
-					alter('错误原因:'+data.error+'\n错误模块:'+data.data+'\n错误描述:'+data.message);
+					alert('错误原因:'+data.error+'\n错误模块:'+data.data+'\n错误描述:'+data.message);
 				else
-					alter('错误原因:'+data.error+'\n错误描述:'+data.message);
+					alert('错误原因:'+data.error+'\n错误描述:'+data.message);
 			}else{
 				func( data );
 			}

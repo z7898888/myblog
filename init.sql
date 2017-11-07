@@ -5,7 +5,7 @@ create user admin@'%' identified by '123abc';
 grant select,insert,update,delete on myblog.* to admin;
 create database myblog;
 
-use myblog; # 使用数据库
+use myblog; -- 使用数据库
 
 create table users(
 		id varchar(50)  primary key,

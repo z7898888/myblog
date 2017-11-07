@@ -5,7 +5,7 @@
 {% block beforehead %}
 <script>
 var api_blogs = "{{api}}";
-var num = 2;
+var num = 3;
 $(function(){
 	getBlogsByPage( api_blogs ,1 ,num);
 });
@@ -19,7 +19,12 @@ $(function(){
 		{% raw %}
 		<div v-for="blog in blogs" class="uk-article">
 			<h2><a v-bind:href="'/blog/'+blog.id">{{blog.title}}</a></h2>
-			<p class="uk-article-meta">发表于 {{blog.created_at}}</p>
+			<p class="uk-article-meta">发表于 {{blog.created_at}}&nbsp;
+			&nbsp;&nbsp;&nbsp;<label id='tag'>分类:
+				<label v-for="cata in blog.cata_path">
+	<a v-bind:href="'/cata/'+cata[0]">{{cata[1]}}</a> &nbsp;/&nbsp;
+				</label>
+			</label></p>
 			<p>{{blog.summary}}</p>
 			<p><a v-bind:href="'/blog/'+blog.id">继续阅读<i class="uk-icon-angle-double-right"></i></a></p>
 		</div>
@@ -54,9 +59,9 @@ $(function(){
 	<div class='uk-panel'>
 		<h3 class='uk-panel-title'>文档分类</h3>
 		<ul class='uk-list uk-list-line'>
-			<li><a href='#'>读书</a></li>
-			<li><a href='#'>编程</a></li>
-			<li><a href='#'>生活感悟</a></li>
+			{% for cata in author.groups_cate %}
+			<li><a href='/cata/{{cata.id}}'>{{cata.name}}</a></li>
+			{% endfor %}
 		</ul>
 	</div>
 </div>
