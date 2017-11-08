@@ -65,6 +65,7 @@ def get_blog():
 @route('/api/blog/save', 'post')
 def api_create_blog():
 	title,summary,content = get_blog();
+	print content;
 	userid = get_userid();
 	blog = Blog(id=uuid1(), title=title.strip(), summary=summary.strip(), content=content.strip(), user_id= userid, created_at=time.time());
 	blog.insert();
@@ -125,7 +126,7 @@ def signin():
 	cookie = make_signed_cookie(name, password, max_age).encode('utf-8');
 	ctx.response.set_cookie('username', cookie, max_age=max_age);
 	
-	url = '/list/'+user.id;
+	url = '/manage/blog';
 	
 	return dict(role=user.role, url=url);
 

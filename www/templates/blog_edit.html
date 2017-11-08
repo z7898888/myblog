@@ -2,12 +2,30 @@
 
 {% block title %}编辑日志{% endblock %}
 {% block beforehead %}
+	<!-- Codemirror 和 marked 依赖 -->
+	<link rel='stylesheet' href='/static/vendor/codemirror.css' />
+	<script src='/static/vendor/codemirror.js'></script>
+	<script src='/static/vendor/marked.js'></script>
+
+	<!-- HTML 编辑器的 CSS 与 JavaScript  -->
+	<link rel='stylesheet' href='/static/css/components/htmleditor.css' />
+	<script src='/static/js/components/htmleditor.js'></script>
+	<script>
+		var editor;
+		function validate_blog( blog ){
+			blog.content.value = editor.currentvalue;
+			return true;
+		}
+		$(function(){
+			editor = UIkit.htmleditor('#editor',{markdown:true});
+		});
+	</script>
 {% endblock %}
 
 {% block blog_content %}
 <ul class="uk-subnav uk-subnav-pill" data-uk-switcher="{connect:'#switch-1'}">
-	<li><a href="#">目录管理</a></li>
 	<li><a href="#">文章管理</a></li>
+	<li><a href="#">目录管理</a></li>
 	<li><a href="#">新日志</a></li>
 </ul>
 <ul id="switch-1" class="uk-switcher">
@@ -16,7 +34,7 @@
 	<li>
 	<div class='uk-grid uk-margin-small-top' data-uk-grid-margin>
 		<div class='uk-width-1-1'>
-			<form method='post' action='/api/blog/save{% if blog %}/{{blog.id}}{% endif %}' class='uk-form uk-form-stacked'>
+			<form method='post' action='/api/blog/save{% if blog %}/{{blog.id}}{% endif %}' class='uk-form uk-form-stacked' onsubmit='return validate_blog(this);'>
 				<div class='uk-form-row'>
 					<input name='title' class="uk-width-1-1" placeholder='标题' {%if blog %}value='{{blog.title}}'{% endif %} />
 				</div>
@@ -26,37 +44,13 @@
 					</div>
 				</div>
 				<div class='uk-form-row'>
-					<textarea id='editor' name='content' class='uk-width-1-1'>{% if blog %}{{blog.content}}{% endif %}</textarea>
+					<textarea id='editor'></textarea>
+					<textarea name="content"style="display:none"></textarea>
 				</div>
 				<div class="uk-form-row">
 					<button class="uk-button uk-button-primary">保存</button>
 				</div>
 			</form>
-			<script src="/static/editor/kindeditor.js"></script>
-			<script src="/static/editor/lang/zh_CN.js"></script>
-			<script src='//unpkg.com/wangeditor/release/wangEditor.min.js'></script>
-			<script>
-				KindEditor.ready(function(K){
-					var options = {
-						resizeType : 1,
-						height:300,
-						items : [
-							'fontname', 'fontsize', '|', 'forecolor',
-							'hilitecolor', 'bold', 'italic','underline',
-							'removeformat','|','justifyleft','justifycenter'
-							,'justifyright','insertorderedlist',
-							'insertunorderedlist','|','emoticons','image',
-							'link','plainpaste','wordpaste','table','hr',
-							'code']
-					};
-					<!-- window.editor = K.create('#editor',options); -->
-					console.log('adfsd');
-					var E = window.wangEditor;
-					var editor = new E('#editor');
-					editor.create();
-					console.log('over');
-				});
-			</script>
 		</div>
 	</div>
 	</li>

@@ -55,7 +55,7 @@ def blog_list_cata( cataid ):
 	return dict( api=api, author=author, user = user);
 
 @view('blog_edit.html')
-@route('/manage/blog/create','get')
+@route('/manage/blog','get')
 def blog_create():
 	user = ctx.request.user;
 	author = get_author_info( user.id );

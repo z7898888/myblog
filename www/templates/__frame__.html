@@ -9,7 +9,7 @@
 			{% if author %}
 			<li><a href='/list/{{author.id}}'><i class='uk-icon-home'></i>列表</a>
 			{% if user and user.id == author.id %}
-			<li><a href='/manage/blog/create'><i class='uk-icon-home'></i>编辑</a>
+			<li><a href='/manage/blog'><i class='uk-icon-home'></i>管理</a>
 			{% endif %}
 			{% endif %}
 		</ul>
