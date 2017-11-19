@@ -59,7 +59,8 @@ def blog_list_cata( cataid ):
 def blog_create():
 	user = ctx.request.user;
 	author = get_author_info( user.id );
-	return dict(author=author ,user=user);
+	api = '/api/blogs-date/'+author.id;
+	return dict( api=api, author=author ,user=user);
 
 @view('blog_edit.html')
 @route('/manage/blog/edit/{id}', 'get')

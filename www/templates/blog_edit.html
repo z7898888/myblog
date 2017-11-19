@@ -11,48 +11,198 @@
 	<link rel='stylesheet' href='/static/css/components/htmleditor.css' />
 	<script src='/static/js/components/htmleditor.js'></script>
 	<script>
-		var editor;
-		function validate_blog( blog ){
-			blog.content.value = editor.currentvalue;
-			return true;
-		}
+		var api_blogs = "{{api}}";
+		var num = 10;
+		var vmblog;
+		
 		$(function(){
-			editor = UIkit.htmleditor('#editor',{markdown:true});
+			$('#lnk_edit').hide();
+			
+			vmblog = new Vue({
+				el:'#edit',
+				data:{
+					blog:null
+				},
+				methods:{
+					update : function(){
+						update();
+					}
+				},
+				components:{
+					'edit':getEditorComp()
+				}
+			});
+
+			new Vue({
+				el:'#div-catas',
+				data:{
+					catas:[{id:'123',name:'af'},{id:'32',name:'ak'}],
+					ncata:{'name':null,'parent':null}
+				},
+				computed:{
+					have_parent: function(){
+						return this.ncata.parent != null;
+					}
+				},
+				methods : {
+					'insert' : function( catalog ){
+						this.ncata.parent = catalog;
+						this.$refs.open.click();
+					},
+					'save': function(){
+						const self = this;
+						var data = {name:null,parent_id:null};
+						data.name = this.ncata.name;
+						if( this.ncata.parent != null ){
+							data.parent_id = this.ncata.parent.id;
+						}
+						postWebAPI('/api/catalog/insert', data,
+							function(data){
+								if(data.result === 'insert') {
+									self.update();
+									self.$refs.close.click();
+								}
+							}
+						);
+					},
+					'remove' : function( cid ){
+						const self = this;
+						getWebAPI('/api/catalog/delete/'+cid,null,
+							function(data){
+								console.log(data);
+								self.update();
+							}
+						);
+					},
+					'update' : function(){
+						var tmp = this;
+						getWebAPI('/api/catalogs',null,function(data){
+							tmp.catas = data.catalogs;
+						});
+					}
+				},
+				created: function(){ 
+					this.update();
+				},
+				components:{
+					'catalog': getCatalogComp()
+				}
+			});
+
+			getBlogsByPage( api_blogs, 1, num);
 		});
+		
+		function edit( link ){
+			if( typeof(link) != 'undefined' ){
+				var api = '/api/blog/'+$(link).attr('bid');
+				getWebAPI(api, null, function(data){
+					vmblog.blog = data;
+				});
+			}
+			else{
+				vmblog.blog = null;
+			}
+			$('#lnk_edit').trigger('click');
+		}
+
+		function remove( link ) {
+			if( typeof(link) != 'undefined' ){
+				var api = '/api/blog/delete/'+$(link).attr('bid');
+				getWebAPI(api, null, function(data){
+					update();
+				});
+			}
+		}
+		
+		function update(){
+			getBlogsByPage(api_blogs, vm.page.page_index, num);
+		}
+
 	</script>
 {% endblock %}
 
 {% block blog_content %}
-<ul class="uk-subnav uk-subnav-pill" data-uk-switcher="{connect:'#switch-1'}">
+<button onclick='edit()' class='uk-button uk-button-primary'><i class='uk-icon-plus'></i>&nbsp;新日志</button>
+
+<a id='lnk_edit' href='#edit' data-uk-modal='{bgclose:false}'>edit</a>
+
+<div id='edit' class='uk-modal'>
+	<edit :blog='blog' v-on:update='update' />
+</div>
+
+<ul class="uk-subnav uk-subnav-pill uk-margin-small-top" data-uk-switcher="{connect:'#switch-1'}">
 	<li><a href="#">文章管理</a></li>
 	<li><a href="#">目录管理</a></li>
-	<li><a href="#">新日志</a></li>
 </ul>
 <ul id="switch-1" class="uk-switcher">
-	<li>目录管理页面还没有想好</li>
-	<li>文章管理页面有点头绪</li>
+	<li><div id='div-blogs' class='uk-width-1-1' style>
+		<table class='uk-table uk-table-hover'>
+			<thead>
+				<tr>
+					<th class='uk-width-3-10'>标题</th>
+					<th class='uk-width-2-10'>目录</th>
+					<th class='uk-width-3-10'>时间</th>
+					<th class='uk-width-3-10'>操作</th>
+				<tr>
+			</thead>
+			<tbody>
+				<tr v-for='blog in blogs'>
+					<td><a target='_blank' v-bind:href="'/blog/'+blog.id"  v-text="blog.title"></td>
+					<td>
+						<label v-for="cata in blog.cata_path">
+		<a v-bind:href="'/cata/'+cata[0]" v-text='cata[1]'></a>/
+						</label>
+					</td>
+					<td><span v-text='blog.created_at'></span></td>
+					<td>
+<a href='#':bid='blog.id'onclick='edit(this)'><i class='uk-icon-edit'></i></a>&nbsp;
+<a href='#':bid='blog.id'onclick='remove(this)'><i class='uk-icon-trash'></i></a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class='uk-width-1-1 uk-text-center'>
+			<ul class='uk-pagination'>
+				<li v-if="!page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>
+				<li v-if="page.has_previous"><a href="javascript:getBlogsByPage( api_blogs, vm.previous(), num);"><i class='uk-icon-angle-double-left'></i></a></li>
+				<li class="uk-active"><span v-text="page.page_index"></span></li>
+				<li v-if="!page.has_next" class="uk-disabled"><span><i class='uk-icon-angle-double-right'></i></span></li>
+				<li v-if="page.has_next"><a href="javascript:getBlogsByPage( api_blogs , vm.next() , num);"><i class='uk-icon-angle-double-right'></i></a></li>
+			</ul>
+		</div>
+	</div></li>
 	<li>
-	<div class='uk-grid uk-margin-small-top' data-uk-grid-margin>
-		<div class='uk-width-1-1'>
-			<form method='post' action='/api/blog/save{% if blog %}/{{blog.id}}{% endif %}' class='uk-form uk-form-stacked' onsubmit='return validate_blog(this);'>
-				<div class='uk-form-row'>
-					<input name='title' class="uk-width-1-1" placeholder='标题' {%if blog %}value='{{blog.title}}'{% endif %} />
-				</div>
-				<div class="uk-form-row">
-					<div class="uk-form-controls">
-						<textarea name='summary' rows="4" class="uk-width-1-1" placeholder='简介'>{% if blog %}{{blog.summary}}{% endif %}</textarea>
+		<div id='div-catas'>
+			<button class='uk-button' @click='insert(null)'>新目录</button>
+			<a href='#newcata' ref='open' data-uk-modal style='display:none;'>openDialog</a>
+			<div id='newcata' class='uk-modal'>
+				<div class='uk-modal-dialog'>
+					<a ref='close' class='uk-modal-close uk-close'></a>
+					<div class='uk-modal-header'>
+						<h2>新建目录</h2>
+					</div>
+					<div class='uk-form-row'>
+						<div class='uk-form-controls'>
+							<label class='uk-form-label'>目录名:</label>
+							<input v-model='ncata.name'></input>
+						</div>
+					</div>
+					<div v-if='have_parent' class='uk-form-row'>
+						<div class='uk-form-controls'>
+							<label class='uk-form-label'>父目录:</label>
+							<input v-model='ncata.parent.name' disabled='disabed'></input>
+							<input v-model='ncata.parent.id' disabled='disabed'></input>
+						</div>
+					</div>
+					<div class='uk-modal-footer uk-text-right'>
+						<button class='uk-button'@click='save'>Save</button>
 					</div>
 				</div>
-				<div class='uk-form-row'>
-					<textarea id='editor'></textarea>
-					<textarea name="content"style="display:none"></textarea>
-				</div>
-				<div class="uk-form-row">
-					<button class="uk-button uk-button-primary">保存</button>
-				</div>
-			</form>
+			</div>
+			<ul v-for='cata in catas'>
+				<li is='catalog' :catalog='cata' @remove='remove' @insert='insert'></li>
+			</ul>
 		</div>
-	</div>
 	</li>
 </ul>
 {% endblock %}

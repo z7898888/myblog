@@ -2,7 +2,7 @@
 #coding:utf-8
 
 from ToyToolkit.myweb import route,api,ctx,APIError,intercept,SeeOther;
-from models import User,Blog;
+from models import User,Blog,Catelog;
 from uuid import uuid1;
 import datetime,time, hashlib;
 
@@ -11,6 +11,45 @@ from config.config import configs;
 _COOKIE_KEY = configs['session']['secret'];
 
 from group import get_blogs_and_page, df1, df2;
+
+def get_catalog():
+	name = ctx.request.get('name').encode('utf-8');
+	pid = ctx.request.get('parent_id').encode('utf-8');
+	if not name:
+		raise APIError('name','目录名字不能为空');
+	return name,pid;
+
+@api
+@route('/api/catalog/delete/{id}','get')
+def api_delete_catalog( id ):
+	catalog = Catelog.get_one( id = id );
+	catalog.delete();
+	return dict( result = 'delete' );
+
+@api
+@route('/api/catalog/insert','post')
+def api_save_catalog():
+	name,pid = get_catalog();
+	print name,pid;
+	uid = get_userid();
+	catalog = Catelog(id=uuid1(),name=name,user_id=uid,parent_id=pid);
+	catalog.insert();
+	return dict( result = 'insert' );
+
+def _ConstructCatas( catas, pid ):
+	ret = [{
+		'id': catalog.id,
+		'name': catalog.name,
+		'catas':_ConstructCatas(catas, [catalog.id])} 
+		for catalog in catas if catalog.parent_id in pid];
+	return ret;
+
+@api
+@route('/api/catalogs', 'get')
+def api_get_catalogs():
+	catalogs = Catelog.get_all();
+	catas = _ConstructCatas( catalogs, [None,'']);
+	return dict( catalogs = catas );
 
 @api
 @route('/api/blogs/{id}', 'get')
@@ -21,7 +60,6 @@ def api_get_blogs( id ):
 @api
 @route('/api/blogs-date/{id}','get')
 def api_get_blogs_by_date( id ):
-	key = lambda x:datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d %H:%M');
 	blogs, page = get_blogs_and_page(id , key=df2);
 	return dict(blogs=blogs, page=page.obj2dict());
 
@@ -65,7 +103,6 @@ def get_blog():
 @route('/api/blog/save', 'post')
 def api_create_blog():
 	title,summary,content = get_blog();
-	print content;
 	userid = get_userid();
 	blog = Blog(id=uuid1(), title=title.strip(), summary=summary.strip(), content=content.strip(), user_id= userid, created_at=time.time());
 	blog.insert();
